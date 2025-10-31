@@ -91,14 +91,3 @@ then redeploy:
 supabase functions deploy generate-post
 ```
 
-## costs
-
-~$0.01-0.02 per analysis with gpt-4o. supabase + vercel free tiers work fine.
-
-## issues?
-
-- check edge function logs in supabase dashboard
-- verify env vars are set
-- make sure db schema is applied
-
-built in a few hours to test if ai can actually learn taste. works pretty well.

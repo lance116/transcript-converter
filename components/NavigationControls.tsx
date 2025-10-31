@@ -30,10 +30,10 @@ export function NavigationControls({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex items-center justify-between gap-4 pt-8"
+      className="flex items-center gap-4 pt-8"
     >
       {/* Back button */}
-      {showBack && onBack ? (
+      {showBack && onBack && (
         <Button
           variant="ghost"
           onClick={onBack}
@@ -43,8 +43,6 @@ export function NavigationControls({
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
-      ) : (
-        <div />
       )}
 
       {/* Next/Submit button */}

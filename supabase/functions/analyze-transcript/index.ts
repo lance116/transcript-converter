@@ -246,8 +246,9 @@ TONE:
 - Use examples: "conversational like talking to a friend" vs "analytical consultant tone"
 
 FORMAT:
-- Concrete details: "300-500 words", "3-5 bullet points max", "one visual per post"
+- Concrete details: "300-500 words", "3-5 simple bullet points max (dashes or circles, NOT bold section headers)", "one visual per post"
 - Structure: "hook + insight + takeaway" vs "problem-solution-results"
+- When describing bullets, specify: "simple dashes" or "simple bullets" NOT "sectioned bullets with bold titles like '- **Title**: description'"
 
 CONTENT TYPE:
 - Specific topics they want or avoid

@@ -1,8 +1,7 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Copy, Check } from "lucide-react"
+import { Copy, Check, Sparkles } from "lucide-react"
 import { useState } from "react"
 import { motion } from "framer-motion"
 
@@ -12,7 +11,7 @@ interface GeneratedPostCardProps {
 
 /**
  * Displays the generated LinkedIn post (Agent 2 output)
- * Clean card with copy functionality
+ * Styled as the first AI message in the chat
  */
 export function GeneratedPostCard({ content }: GeneratedPostCardProps) {
   const [copied, setCopied] = useState(false)
@@ -25,48 +24,47 @@ export function GeneratedPostCard({ content }: GeneratedPostCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4 }}
+      className="px-4 py-6 max-w-4xl mx-auto"
     >
-      <Card className="border border-border shadow-premium">
-        <CardContent className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold">Your Post</h3>
-              <p className="text-sm text-muted-foreground">
-                Generated based on your preferences
+      {/* AI message - left aligned */}
+      <div className="flex gap-3 items-start">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <Sparkles className="h-5 w-5 text-primary" />
+        </div>
+        <div className="flex-1">
+          <div className="rounded-2xl bg-muted border border-border px-4 py-4 max-w-[75%]">
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <p className="text-xs font-semibold text-primary">
+                Generated Post
               </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopy}
+                className="h-7 px-2 text-xs gap-1.5 -mt-1"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-success" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy
+                  </>
+                )}
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopy}
-              className="gap-2"
-            >
-              {copied ? (
-                <>
-                  <Check className="h-4 w-4 text-success" />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4" />
-                  Copy
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Post content */}
-          <div className="rounded-lg bg-muted/30 p-6 border border-border">
-            <p className="whitespace-pre-wrap leading-relaxed text-foreground">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
               {content}
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </motion.div>
   )
 }

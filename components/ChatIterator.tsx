@@ -7,12 +7,18 @@ import { Send, Loader2 } from "lucide-react"
 import { useAppStore } from "@/store/appStore"
 import { motion, AnimatePresence } from "framer-motion"
 import { IterationMessage } from "./IterationMessage"
+import { GeneratedPostCard } from "./GeneratedPostCard"
+
+interface ChatIteratorProps {
+  initialPost?: string
+}
 
 /**
  * Chat interface for iterating on the generated post
  * Allows user to request revisions via Agent 3
+ * Shows the initial generated post at the top
  */
-export function ChatIterator() {
+export function ChatIterator({ initialPost }: ChatIteratorProps) {
   const [message, setMessage] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -38,7 +44,7 @@ export function ChatIterator() {
     try {
       // Get the current post (either original or last iteration)
       const currentPost = iterations.length > 0
-        ? iterations[iterations.length - 1].revised_post
+        ? iterations[iterations.length - 1].revisedPost
         : generatedPost
 
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -72,9 +78,9 @@ export function ChatIterator() {
       // Add iteration to store
       addIteration({
         id: crypto.randomUUID(),
-        user_message: userMessage,
-        revised_post: data.revisedPost,
-        created_at: new Date().toISOString(),
+        userMessage: userMessage,
+        revisedPost: data.revisedPost,
+        timestamp: Date.now(),
       })
     } catch (error) {
       console.error("Error iterating post:", error)
@@ -94,24 +100,20 @@ export function ChatIterator() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="mt-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col h-full"
     >
-      <div className="rounded-lg border border-border bg-background shadow-premium overflow-hidden">
-        {/* Header */}
-        <div className="border-b border-border px-6 py-4">
-          <h3 className="text-lg font-semibold">Refine Your Post</h3>
-          <p className="text-sm text-muted-foreground">
-            Chat with AI to iterate and improve the post
-          </p>
-        </div>
+      {/* Messages area - takes up remaining space */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Show initial generated post */}
+        {initialPost && <GeneratedPostCard content={initialPost} />}
 
-        {/* Messages area */}
-        <div className="px-6 py-4 space-y-4 max-h-[500px] overflow-y-auto">
+        {/* Show iteration messages */}
+        <div className="px-4 space-y-6">
           <AnimatePresence mode="popLayout">
-            {iterations.length === 0 ? (
+            {iterations.length === 0 && (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}
@@ -119,24 +121,25 @@ export function ChatIterator() {
                 exit={{ opacity: 0 }}
                 className="text-center py-8 text-muted-foreground text-sm"
               >
-                Start a conversation to refine your post
+                Ask for changes to refine your post...
               </motion.div>
-            ) : (
-              iterations.map((iteration, index) => (
-                <IterationMessage
-                  key={iteration.id}
-                  userMessage={iteration.user_message}
-                  revisedPost={iteration.revised_post}
-                  index={index}
-                />
-              ))
             )}
+            {iterations.map((iteration, index) => (
+              <IterationMessage
+                key={iteration.id}
+                userMessage={iteration.userMessage}
+                revisedPost={iteration.revisedPost}
+                index={index}
+              />
+            ))}
           </AnimatePresence>
           <div ref={messagesEndRef} />
         </div>
+      </div>
 
-        {/* Input area */}
-        <div className="border-t border-border px-6 py-4">
+      {/* Input area - fixed at bottom */}
+      <div className="border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-4">
+        <div className="max-w-4xl mx-auto">
           <div className="flex gap-3 items-end">
             <div className="flex-1">
               <Textarea
@@ -155,7 +158,7 @@ export function ChatIterator() {
               onClick={handleSubmit}
               disabled={!message.trim() || isLoading}
               size="lg"
-              className="gap-2"
+              className="gap-2 h-[80px] shrink-0"
             >
               {isLoading ? (
                 <>

@@ -30,7 +30,7 @@ export function TranscriptInput() {
           Paste your transcript
         </h2>
         <p className="text-muted-foreground text-base sm:text-lg">
-          We'll learn what you like from your conversation about the 5 LinkedIn posts.
+          We&apos;ll learn what you like from your conversation about the 5 LinkedIn posts.
         </p>
       </div>
 

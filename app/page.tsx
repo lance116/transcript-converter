@@ -1,16 +1,15 @@
 "use client"
 
+import React from "react"
 import { useAppStore } from "@/store/appStore"
 import { StepFlow } from "@/components/StepFlow"
 import { TranscriptInput } from "@/components/TranscriptInput"
 import { PreferenceSummary } from "@/components/PreferenceSummary"
-import { GeneratedPostCard } from "@/components/GeneratedPostCard"
 import { ChatIterator } from "@/components/ChatIterator"
 import { NavigationControls } from "@/components/NavigationControls"
-import { EmptyState } from "@/components/EmptyState"
 import { PremiumLoadingState } from "@/components/PremiumLoadingState"
-import { FileText, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Sparkles } from "lucide-react"
 
 /**
  * Step 1: Analyze Transcript
@@ -69,10 +68,6 @@ function Step1() {
     }
   }
 
-  const handleContinue = () => {
-    setCurrentStep(2)
-  }
-
   return (
     <div>
       {/* Transcript Input */}
@@ -94,26 +89,30 @@ function Step1() {
 
       {/* Preference Summary */}
       {preferenceSummary && !isLoading && (
-        <PreferenceSummary summary={preferenceSummary} />
+        <>
+          <div className="mt-8">
+            <PreferenceSummary summary={preferenceSummary} />
+          </div>
+          <div className="flex justify-center mt-8">
+            <Button
+              onClick={() => setCurrentStep(2)}
+              size="lg"
+              className="gap-2"
+            >
+              <Sparkles className="h-5 w-5" />
+              Generate Post
+            </Button>
+          </div>
+        </>
       )}
 
       {/* Navigation */}
-      {!preferenceSummary && (
+      {!preferenceSummary && !isLoading && (
         <NavigationControls
           onNext={handleAnalyze}
           nextLabel="Analyze Transcript"
           nextDisabled={!isValid}
           isLoading={isLoading}
-          showBack={false}
-        />
-      )}
-
-      {preferenceSummary && !isLoading && (
-        <NavigationControls
-          onNext={handleContinue}
-          nextLabel="Continue to Generate Post"
-          nextDisabled={false}
-          isLoading={false}
           showBack={false}
         />
       )}
@@ -123,7 +122,7 @@ function Step1() {
 
 /**
  * Step 2: Generate Post & Iterate
- * User generates post → Agent 2 creates post → Chat with Agent 3 to iterate
+ * Automatically generates post on mount, then shows chat interface
  */
 function Step2() {
   const preferenceSummary = useAppStore((state) => state.preferenceSummary)
@@ -135,73 +134,70 @@ function Step2() {
   const setIsLoading = useAppStore((state) => state.setIsLoading)
   const setError = useAppStore((state) => state.setError)
 
-  const handleGeneratePost = async () => {
-    setIsLoading(true)
-    setError(null)
+  // Auto-generate post on mount
+  React.useEffect(() => {
+    // Only generate if we don't already have a post
+    if (!generatedPost && !isLoading && preferenceSummary) {
+      const generatePost = async () => {
+        setIsLoading(true)
+        setError(null)
 
-    try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        try {
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+          const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-      if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error("Supabase configuration missing")
-      }
+          if (!supabaseUrl || !supabaseAnonKey) {
+            throw new Error("Supabase configuration missing")
+          }
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/generate-post`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${supabaseAnonKey}`,
-          },
-          body: JSON.stringify({
-            transcriptId: "demo-transcript-id", // In production, this would be the actual transcript ID
-            preferenceSummary,
-          }),
+          const response = await fetch(
+            `${supabaseUrl}/functions/v1/generate-post`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${supabaseAnonKey}`,
+              },
+              body: JSON.stringify({
+                transcriptId: "demo-transcript-id",
+                preferenceSummary,
+              }),
+            }
+          )
+
+          const data = await response.json()
+
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to generate post")
+          }
+
+          setGeneratedPost(data.post)
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : "An unexpected error occurred"
+          setError(errorMessage)
+          console.error("Error generating post:", err)
+        } finally {
+          setIsLoading(false)
         }
-      )
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to generate post")
       }
 
-      setGeneratedPost(data.post)
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred"
-      setError(errorMessage)
-      console.error("Error generating post:", err)
-    } finally {
-      setIsLoading(false)
+      generatePost()
     }
-  }
+  }, [generatedPost, isLoading, preferenceSummary, setGeneratedPost, setIsLoading, setError])
 
   const handleBack = () => {
     setCurrentStep(1)
   }
 
+  // If post is generated, show full-height chat interface
+  if (generatedPost && !isLoading) {
+    return <ChatIterator initialPost={generatedPost} />
+  }
+
+  // Otherwise show loading state
   return (
     <div>
-      {/* Empty State (before generation) */}
-      {!generatedPost && !isLoading && (
-        <>
-          <EmptyState
-            title="Ready to generate your post"
-            description="We'll create a LinkedIn post based on your preferences, written in Lance's voice"
-            icon={<Sparkles className="h-16 w-16 text-foreground" />}
-          />
-          <div className="flex justify-center mt-8">
-            <Button onClick={handleGeneratePost} size="lg" className="gap-2">
-              <Sparkles className="h-5 w-5" />
-              Generate Post
-            </Button>
-          </div>
-        </>
-      )}
-
       {/* Loading State */}
       {isLoading && (
         <PremiumLoadingState message="Generating your personalized post..." />
@@ -214,26 +210,8 @@ function Step2() {
         </div>
       )}
 
-      {/* Generated Post */}
-      {generatedPost && !isLoading && (
-        <>
-          <GeneratedPostCard content={generatedPost} />
-          <ChatIterator />
-        </>
-      )}
-
       {/* Back Button */}
-      {!generatedPost && (
-        <NavigationControls
-          onBack={handleBack}
-          nextLabel=""
-          nextDisabled={true}
-          isLoading={false}
-          showBack={true}
-        />
-      )}
-
-      {generatedPost && (
+      {!isLoading && (
         <NavigationControls
           onBack={handleBack}
           nextLabel=""

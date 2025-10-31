@@ -1,6 +1,9 @@
 # Supabase Edge Function Deployment Guide
 
-This guide explains how to deploy the `analyze-transcript` edge function to Supabase.
+This guide explains how to deploy all three Virio edge functions to Supabase:
+- **Agent 1**: `analyze-transcript` - Extracts customer preferences from transcripts
+- **Agent 2**: `generate-post` - Generates LinkedIn posts based on preferences
+- **Agent 3**: `iterate-post` - Iterates on posts based on user feedback
 
 ## Prerequisites
 
@@ -73,15 +76,30 @@ This will start:
 - Edge Functions runtime
 - Studio (local dashboard at http://localhost:54323)
 
-### 4. Serve Edge Function Locally
+### 4. Serve Edge Functions Locally
 
+#### Serve all functions:
 ```bash
-supabase functions serve analyze-transcript --env-file supabase/.env
+supabase functions serve --env-file supabase/.env
 ```
 
-Your function will be available at:
+#### Or serve individual functions:
+```bash
+# Agent 1 - Analyze Transcript
+supabase functions serve analyze-transcript --env-file supabase/.env
+
+# Agent 2 - Generate Post
+supabase functions serve generate-post --env-file supabase/.env
+
+# Agent 3 - Iterate Post
+supabase functions serve iterate-post --env-file supabase/.env
+```
+
+Your functions will be available at:
 ```
 http://localhost:54321/functions/v1/analyze-transcript
+http://localhost:54321/functions/v1/generate-post
+http://localhost:54321/functions/v1/iterate-post
 ```
 
 ### 5. Test Locally
@@ -115,16 +133,34 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-actual-service-role-key
 supabase secrets list
 ```
 
-### 2. Deploy Edge Function
+### 2. Deploy Edge Functions
 
+#### Deploy all functions at once:
 ```bash
 supabase functions deploy analyze-transcript
+supabase functions deploy generate-post
+supabase functions deploy iterate-post
+```
+
+#### Or deploy individually as needed:
+```bash
+# Agent 1 - Analyze Transcript
+supabase functions deploy analyze-transcript
+
+# Agent 2 - Generate Post
+supabase functions deploy generate-post
+
+# Agent 3 - Iterate Post
+supabase functions deploy iterate-post
 ```
 
 This will:
 - Bundle your function code
 - Upload it to Supabase
-- Make it available at: `https://gbpspxknidhqrcedgnfk.supabase.co/functions/v1/analyze-transcript`
+- Make them available at:
+  - `https://YOUR_PROJECT_ID.supabase.co/functions/v1/analyze-transcript`
+  - `https://YOUR_PROJECT_ID.supabase.co/functions/v1/generate-post`
+  - `https://YOUR_PROJECT_ID.supabase.co/functions/v1/iterate-post`
 
 ### 3. Verify Deployment
 
@@ -169,19 +205,18 @@ supabase functions logs analyze-transcript --follow
    - Logs
    - Metrics
 
-## Updating the Function
+## Updating Functions
 
-After making changes to `supabase/functions/analyze-transcript/index.ts`:
+After making changes to any function:
 
 ```bash
-# Deploy updated version
-supabase functions deploy analyze-transcript
+# Deploy updated version of specific function
+supabase functions deploy analyze-transcript  # Or generate-post, iterate-post
 
-# Verify it's working
-curl -i --location --request POST 'https://YOUR_PROJECT_ID.supabase.co/functions/v1/analyze-transcript' \
-  --header 'Authorization: Bearer YOUR_ANON_KEY' \
-  --header 'Content-Type: application/json' \
-  --data '{"transcript":"test transcript here"}'
+# Or redeploy all functions
+supabase functions deploy analyze-transcript && \
+supabase functions deploy generate-post && \
+supabase functions deploy iterate-post
 ```
 
 ## Troubleshooting
@@ -270,17 +305,26 @@ The function includes CORS headers. If issues persist:
 
 ```bash
 # Link project
-supabase link --project-ref gbpspxknidhqrcedgnfk
+supabase link --project-ref YOUR_PROJECT_ID
 
 # Set secrets
 supabase secrets set OPENAI_API_KEY=sk-xxx
+supabase secrets set SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-# Deploy function
+# Deploy all functions
 supabase functions deploy analyze-transcript
+supabase functions deploy generate-post
+supabase functions deploy iterate-post
 
-# View logs
+# View logs (all functions)
 supabase functions logs analyze-transcript --follow
+supabase functions logs generate-post --follow
+supabase functions logs iterate-post --follow
 
-# Test locally
-supabase functions serve analyze-transcript --env-file supabase/.env
+# Test locally (all functions)
+supabase functions serve --env-file supabase/.env
+
+# Run database migrations
+# Copy SQL from supabase-schema.sql and run in Supabase Dashboard → SQL Editor
 ```

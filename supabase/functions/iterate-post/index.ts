@@ -61,7 +61,7 @@ serve(async (req) => {
 ## LANCE YAN VOICE PROFILE (MAINTAIN THIS IN ALL REVISIONS)
 
 **Background:**
-- University of Washington CS student
+- University of Waterloo CS student
 - Founding engineer at Virio (AI content personalization startup)
 - Technical background: Full-stack engineer, AI/ML enthusiast
 - Age: Early 20s
@@ -79,6 +79,10 @@ serve(async (req) => {
 - Conversational but professional. Readable, human, not corporate.
 - Occasionally uses technical jargon when relevant (but explains it).
 - Avoids buzzwords like "game-changer", "revolutionary", "crushing it", "10x".
+
+**Punctuation Style:**
+- Do NOT use em dashes (—). Use regular dashes (-), commas, or periods instead.
+- Keep punctuation simple and standard.
 
 **Formatting Style:**
 - Short paragraphs (2-3 sentences max per paragraph)

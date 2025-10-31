@@ -18,22 +18,24 @@
 
 ### Agent 2: generate-post
 - **Status:** ✅ ACTIVE
-- **Version:** 3
+- **Version:** 4
 - **Endpoint:** `https://gbpspxknidhqrcedgnfk.supabase.co/functions/v1/generate-post`
 - **Purpose:** Generates 300-500 word LinkedIn posts in Lance Yan's voice
 - **Temperature:** 0.7 (creative but consistent)
 - **Test Result:** ✅ PASSED - Generated authentic post with data-driven content
-- **Voice Profile:** Founding engineer at Virio (not founder), no email signatures
+- **Voice Profile:** University of Waterloo CS student, founding engineer at Virio
+- **Style Rules:** No email signatures, no em dashes (—), ends with CTA or question
 - **Note:** Database storage is optional for demo mode (transcript IDs starting with "demo-")
 
 ### Agent 3: iterate-post
 - **Status:** ✅ ACTIVE
-- **Version:** 2
+- **Version:** 3
 - **Endpoint:** `https://gbpspxknidhqrcedgnfk.supabase.co/functions/v1/iterate-post`
 - **Purpose:** Revises posts based on user feedback while maintaining Lance's voice
 - **Temperature:** 0.7 (creative but consistent)
 - **Test Result:** ✅ PASSED - Successfully revised post based on user request
-- **Voice Profile:** Founding engineer at Virio (not founder), no email signatures
+- **Voice Profile:** University of Waterloo CS student, founding engineer at Virio
+- **Style Rules:** No email signatures, no em dashes (—), ends with CTA or question
 
 ---
 
@@ -185,9 +187,12 @@ https://supabase.com/dashboard/project/gbpspxknidhqrcedgnfk/functions
 - **04:36:15 UTC** - Issue discovered with generate-post (DB foreign key)
 - **04:37:28 UTC** - generate-post redeployed (version 2) with DB fix
 - **04:38:34 UTC** - All functions tested and verified ✅
-- **04:45:21 UTC** - generate-post redeployed (version 3) with corrected Lance profile
-- **04:45:27 UTC** - iterate-post redeployed (version 2) with corrected Lance profile
-- **04:46:30 UTC** - Final verification - posts end with CTA, not signatures ✅
+- **04:45:21 UTC** - generate-post redeployed (version 3) - Lance profile: founding engineer (not founder)
+- **04:45:27 UTC** - iterate-post redeployed (version 2) - Lance profile: founding engineer (not founder)
+- **04:46:30 UTC** - Verification: posts end with CTA, not signatures ✅
+- **04:54:40 UTC** - generate-post redeployed (version 4) - University of Waterloo (not Washington), no em dashes
+- **04:54:41 UTC** - iterate-post redeployed (version 3) - University of Waterloo (not Washington), no em dashes
+- **04:56:00 UTC** - Final verification: Waterloo, no em dashes, proper LinkedIn formatting ✅
 
 ---
 
